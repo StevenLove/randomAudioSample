@@ -10,8 +10,14 @@ function init(){
     getAudioElement().oncanplay = playAudio;
     setCategory("acx0");
     initializeIdentifier();
-    getIdentifierElement().addEventListener("change",updateAudio);
+    getIdentifierElement().addEventListener("change",onIdentifierChanged);
     getCategoryElement().addEventListener("change",updateAudio);
+    updateAudio();
+}
+
+function onIdentifierChanged(){
+    let id = getIdentifier();
+    setIdentifier(id);
     updateAudio();
 }
 

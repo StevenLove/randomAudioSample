@@ -1,24 +1,44 @@
 document.addEventListener("DOMContentLoaded", init);
 function init(){
-    document.querySelector("#randomize").addEventListener("click",randomize)
+    document.querySelector("#randomize").addEventListener("click",()=>{
+        setIdentifier(getRandomIdentifier());
+        updateAudio();
+    })
+    document.querySelector("#copy").addEventListener("click",()=>{
+        copyToClipboard(window.location.href);
+    })
     getAudioElement().oncanplay = playAudio;
     setCategory("acx0");
-    randomize();
+    initializeIdentifier();
     getIdentifierElement().addEventListener("change",updateAudio);
     getCategoryElement().addEventListener("change",updateAudio);
+    updateAudio();
 }
 
-function randomize(){
+
+function initializeIdentifier(){
+    let p = new URLSearchParams(window.location.search);
+    let q = p.get('q');
+    if(q){
+        setIdentifier(q);
+    }else{
+        setIdentifier(getRandomIdentifier());
+    }
+}
+
+function getRandomIdentifier(){
     console.log("randomize");
     let digits = 6;
     let max = 198999;
     let number = ""+Math.floor(Math.random()*max);
     let str = number.padStart(digits,"0")
-    setIdentifier(str);
-    updateAudio();
+    return str;
 }
 function getIdentifierElement(){return document.querySelector("#identifier");}
-function setIdentifier(v){getIdentifierElement().value = v;}
+function setIdentifier(v){
+    getIdentifierElement().value = v;
+    setQueryString(v);
+}
 function getIdentifier(){return getIdentifierElement().value;}
 
 function getCategoryElement(){return document.querySelector("#category")}
@@ -53,6 +73,32 @@ function getURL(){
 
 
     return url;
+}
+
+function setQueryString(q){
+    const params = new URLSearchParams(location.search);
+    params.set('q', q);
+    // params.set('cheese', 'yummy');
+    window.history.replaceState({}, '', `${location.pathname}?${params.toString()}`);
+}
+function copyToClipboard(text){
+    const el = document.createElement('textarea');  // Create a <textarea> element
+    el.value = text;                                // Set its value to the string that you want copied
+    el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
+    el.style.position = 'absolute';
+    el.style.left = '-9999px';                      // Move outside the screen to make it invisible
+    document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
+    const selected =
+        document.getSelection().rangeCount > 0        // Check if there is any content selected previously
+        ? document.getSelection().getRangeAt(0)     // Store selection if found
+        : false;                                    // Mark as false to know no selection existed before
+    el.select();                                    // Select the <textarea> content
+    document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+    document.body.removeChild(el);                  // Remove the <textarea> element
+    if (selected) {                                 // If a selection existed before copying
+        document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+        document.getSelection().addRange(selected);   // Restore the original selection
+    }
 }
 
 function getAudioElement(){return document.querySelector("audio");}

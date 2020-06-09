@@ -105,5 +105,7 @@ function getAudioElement(){return document.querySelector("audio");}
 function playAudio(){getAudioElement().play()}
 function updateAudio(){
     console.log("update audio");
+    getAudioElement().pause();
     getAudioElement().src = getURL();
+    getAudioElement().play();
 }
